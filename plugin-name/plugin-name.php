@@ -38,4 +38,9 @@ register_activation_hook( __FILE__, array( 'PluginName', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'PluginName', 'deactivate' ) );
 
 // TODO: replace PluginName with the name of the plugin defined in `class-plugin-name.php`
-PluginName::get_instance();
+if ( is_admin() ) {
+	include_once( 'views/admin.php' );
+	PluginNameAdmin::get_instance();
+} else {
+	PluginName::get_instance();
+}
