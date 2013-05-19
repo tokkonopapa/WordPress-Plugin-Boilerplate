@@ -25,12 +25,12 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if ( ! defined( 'WPINC' ) )
 	die;
-}
 
 // TODO: replace `class-plugin-name.php` with the name of the actual plugin's class file
 require_once( plugin_dir_path( __FILE__ ) . 'class-plugin-name.php' );
+//require_once( plugin_dir_path( __FILE__ ) . 'class-plugin-widget.php' );
 
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
 // TODO: replace PluginName with the name of the plugin defined in `class-plugin-name.php`
@@ -40,7 +40,7 @@ register_deactivation_hook( __FILE__, array( 'PluginName', 'deactivate' ) );
 // TODO: replace PluginName with the name of the plugin defined in `class-plugin-name.php`
 if ( is_admin() ) {
 	include_once( 'views/admin.php' );
-	PluginNameAdmin::get_instance();
+	PluginNameAdmin::get_instance( __FILE__ );
 } else {
-	PluginName::get_instance();
+	PluginName::get_instance( __FILE__ );
 }
