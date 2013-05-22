@@ -96,7 +96,7 @@ class PluginNameAdmin extends PluginName {
 
 		$screen = get_current_screen();
 		if ( $screen->id === $this->plugin_screen_hook_suffix )
-			wp_enqueue_style( $this->plugin_slug . '-admin-styles', plugins_url( 'css/admin.css', $this->plugin_file ), $this->version );
+			wp_enqueue_style( $this->plugin_slug . '-admin-styles', plugins_url( 'css/admin.css', $this->plugin_file ), array(), $this->version );
 	}
 
 	/**
