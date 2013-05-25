@@ -184,39 +184,6 @@ class PluginName {
 	}
 
 	/**
-	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_plugin_admin_menu() {
-
-		/*
-		 * TODO:
-		 *
-		 * Change 'Page Title' to the title of your plugin admin page
-		 * Change 'Menu Text' to the text for menu item for the plugin settings page
-		 * Change 'plugin-name' to the name of your plugin
-		 */
-		$this->plugin_screen_hook_suffix = add_plugins_page(
-			__( 'Page Title', $this->plugin_slug ),
-			__( 'Menu Text', $this->plugin_slug ),
-			'read',
-			$this->plugin_slug,
-			array( $this, 'display_plugin_admin_page' )
-		);
-
-	}
-
-	/**
-	 * Render the settings page for this plugin.
-	 *
-	 * @since    1.0.0
-	 */
-	public function display_plugin_admin_page() {
-		include_once( 'views/admin.php' );
-	}
-
-	/**
 	 * NOTE:  Actions are points in the execution of a page or process
 	 *        lifecycle that WordPress fires.
 	 *
