@@ -9,6 +9,8 @@
  * @copyright 2013 Your Name or Company Name
  */
 
+define( 'PLUGIN_NAME_DEBUG', TRUE ); // output log
+
 /**
  * Plugin class.
  *
@@ -39,6 +41,8 @@ class PluginName {
 	 * @var      string
 	 */
 	protected $plugin_slug = 'plugin-name';
+	protected $plugin_file;
+	protected $plugin_base;
 
 	/**
 	 * Instance of this class.
@@ -50,30 +54,40 @@ class PluginName {
 	protected static $instance = null;
 
 	/**
-	 * Slug of the plugin screen.
+	 * Option table default value.
 	 *
 	 * @since    1.0.0
 	 *
-	 * @var      string
+	 * @var      object
 	 */
-	protected $plugin_screen_hook_suffix = null;
+	// TODO: Replace 'plugin_name_...' with a unique value for your plugin.
+	// TODO: Define options which are cached into options database table.
+	// @link http://wpengineer.com/968/wordpress-working-with-options/
+	protected static $option_table = array(
+		'plugin_name_settings1' => array(
+			'section1_checkbox' => false,
+			'section1_text' => "",
+			'section2_checkbox' => false,
+			'section2_text' => "5",
+		),
+		'plugin_name_settings2' => array(
+			'section3_checkbox' => false,
+			'section3_text' => "",
+		),
+	);
 
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
 	 *
 	 * @since     1.0.0
 	 */
-	private function __construct() {
+	public function __construct( $file ) {
+		// Name of this plugin file
+		$this->plugin_file = $file;
+		$this->plugin_base = plugin_basename( $file );
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-
-		// Add the options page and menu item.
-		// add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
-
-		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Load public-facing style sheet and JavaScript.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
@@ -82,7 +96,6 @@ class PluginName {
 		// Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
 		add_action( 'TODO', array( $this, 'action_method_name' ) );
 		add_filter( 'TODO', array( $this, 'filter_method_name' ) );
-
 	}
 
 	/**
@@ -92,12 +105,10 @@ class PluginName {
 	 *
 	 * @return    object    A single instance of this class.
 	 */
-	public static function get_instance() {
-
+	public static function get_instance( $file ) {
 		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
-			self::$instance = new self;
-		}
+		if ( null === self::$instance )
+			self::$instance = new self( $file );
 
 		return self::$instance;
 	}
@@ -111,6 +122,9 @@ class PluginName {
 	 */
 	public static function activate( $network_wide ) {
 		// TODO: Define activation functionality here
+		foreach ( self::$option_table as $key => $value ) {
+			add_option( $key, self::$option_table[$key] );
+		}
 	}
 
 	/**
@@ -125,57 +139,30 @@ class PluginName {
 	}
 
 	/**
+	 * Fired when the plugin is uninstalled.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @param    boolean    $network_wide    True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
+	 */
+	public static function uninstall( $network_wide = false ) {
+		// TODO: Define deactivation functionality here
+		foreach ( self::$option_table as $key => $value ) {
+			delete_option( $key );
+		}
+	}
+
+	/**
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
 	 */
 	public function load_plugin_textdomain() {
-
 		$domain = $this->plugin_slug;
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
-		load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
-		load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
-	}
-
-	/**
-	 * Register and enqueue admin-specific style sheet.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
-	 */
-	public function enqueue_admin_styles() {
-
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
-		}
-
-	}
-
-	/**
-	 * Register and enqueue admin-specific JavaScript.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
-	 */
-	public function enqueue_admin_scripts() {
-
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
-		}
-
+		load_textdomain( $domain, WP_LANG_DIR . "/$this->plugin_slug/$domain-$locale.mo" );
+		load_plugin_textdomain( $domain, FALSE, dirname( $this->plugin_base ) . '/lang/' );
 	}
 
 	/**
@@ -255,4 +242,24 @@ class PluginName {
 		// TODO: Define your filter hook callback here
 	}
 
+	/**
+	 * Output log to a file
+	 *
+	 * @param string $msg: message strings.
+	 */
+	protected function debug_log( $msg = '' ) {
+		if ( PLUGIN_NAME_DEBUG ) {
+			$who = '';
+			if ( is_admin() ) $who .= 'admin';
+			if ( defined( 'DOING_AJAX' ) ) $who .= 'ajax';
+			if ( defined( 'DOING_CRON' ) ) $who .= 'cron';
+			if ( isset( $_GET['doing_wp_cron'] ) ) $who .= 'doing';
+			$mod = empty( $msg ) ? 'w' : 'a';
+			$fp = @fopen( plugin_dir_path( __FILE__ ) . 'debug.log', $mod );
+			if ( FALSE !== $fp ) {
+				@fwrite( $fp, date( 'd/M/Y H:i:s', time() + $this->gmt_offset ) . " ${who}/${msg}\n" );
+				@fclose( $fp );
+			}
+		}
+	}
 }
